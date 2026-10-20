@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Ses Sepetleri – Arapça Hareke Eğitim Oyunu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Noto+Naskh+Arabic:wght@700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --font-display: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-arabic: 'Amiri', 'Noto Naskh Arabic', 'Scheherazade New', 'Traditional Arabic', 'Geeza Pro', 'Arial', serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+    html, body {
+      width: 100vw; height: 100vh; overflow: hidden;
+      font-family: var(--font-sans);
+      background: linear-gradient(180deg, #FFFDF7 0%, #FDF6E4 65%, #F7EBCF 100%);
+      color: #2D2640;
+      touch-action: none;
+    }
+    .app-shell {
+      display: flex; flex-direction: column; justify-content: space-between;
+      width: 100%; height: 100%; max-width: 1440px; margin: 0 auto;
+      padding: 12px 20px 14px; position: relative;
+    }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; z-index: 20;
+    }
+    .hud-group { display: flex; align-items: center; gap: 10px; }
+    .hud-box {
+      background: #FFFFFF; border: 2px solid #FFF;
+      box-shadow: 0 5px 0 #E2D2B5, 0 8px 16px rgba(45,38,64,0.08);
+      border-radius: 16px; padding: 6px 14px;
+      display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px;
+    }
+    .title-3d {
+      font-family: var(--font-display); font-weight: 800;
+      font-size: clamp(1.6rem, 3vw, 2.5rem);
+      color: #FF7A45;
+      text-shadow: 0 2px 0 #FFF, 0 4px 0 #D95326, 0 6px 0 #B53D15, 0 10px 18px rgba(181,61,21,0.28);
+      text-align: center;
+    }
+    .btn-3d {
+      cursor: pointer; border: 2px solid #FFF; border-radius: 12px;
+      padding: 8px 13px; font-family: var(--font-sans); font-weight: 800;
+      font-size: 13px; background: #FFF; color: #3B3154;
+      box-shadow: 0 4px 0 #E2D2B5, 0 6px 12px rgba(0,0,0,0.08);
+      transition: transform 0.12s;
+    }
+    .btn-3d:active { transform: translateY(2px); }
+    .btn-amber { background: #FBBF24; color: #451A03; box-shadow: 0 4px 0 #D97706; }
+    .cards-stage {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 6px 0; min-height: 0; z-index: 25;
+    }
+    .cards-grid {
+      display: grid; gap: 12px; width: 100%; max-width: 1120px;
+      justify-content: center; align-content: center;
+    }
+    .letter-card {
+      position: relative; border-radius: 20px; border: 3px solid #FFF;
+      display: flex; align-items: center; justify-content: center;
+      cursor: grab; touch-action: none;
+      transition: transform 0.16s cubic-bezier(0.16,1,0.3,1), box-shadow 0.16s;
+    }
+    .letter-card::before {
+      content: ''; position: absolute; inset: 3px 6px auto 6px; height: 35%;
+      border-radius: 16px 16px 50% 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.05));
+      pointer-events: none;
+    }
+    .arabic-glyph {
+      font-family: var(--font-arabic); direction: rtl; line-height: 1.35;
+      font-weight: 700; pointer-events: none;
+    }
+    .color-blue { background: linear-gradient(180deg,#DDF2FF,#BBE3FF); box-shadow: 0 6px 0 #7CC2F5, 0 10px 16px rgba(64,138,196,0.2); color: #164E78; }
+    .color-green { background: linear-gradient(180deg,#E1FAEA,#BDF2D1); box-shadow: 0 6px 0 #6FD196, 0 10px 16px rgba(52,150,92,0.2); color: #165B33; }
+    .color-pink { background: linear-gradient(180deg,#FFE4F0,#FFC7E1); box-shadow: 0 6px 0 #F28BB9, 0 10px 16px rgba(196,78,131,0.2); color: #7A1C48; }
+    .color-purple { background: linear-gradient(180deg,#EFE5FF,#DEC8FF); box-shadow: 0 6px 0 #B18CF0, 0 10px 16px rgba(118,78,189,0.2); color: #451E80; }
+    .color-yellow { background: linear-gradient(180deg,#FFF7D6,#FFE999); box-shadow: 0 6px 0 #E8BE4A, 0 10px 16px rgba(186,141,24,0.2); color: #6B4C08; }
+    .color-orange { background: linear-gradient(180deg,#FFEAD9,#FFD1B0); box-shadow: 0 6px 0 #F59D62, 0 10px 16px rgba(194,102,43,0.2); color: #78330B; }
+    @keyframes wobble {
+      0%,100%{transform:translate3d(0,0,0)}
+      20%{transform:translate3d(-11px,0,0) rotate(-5deg)}
+      40%{transform:translate3d(10px,0,0) rotate(5deg)}
+      60%{transform:translate3d(-7px,0,0) rotate(-3deg)}
+      80%{transform:translate3d(5px,0,0) rotate(3deg)}
+    }
+    .wobble { animation: wobble 0.5s ease; }
+    .baskets-row {
+      display: flex; align-items: flex-end; justify-content: center;
+      gap: 24px; padding-top: 6px; z-index: 15;
+    }
+    .basket-wrap {
+      flex: 1; max-width: 320px; display: flex; flex-direction: column; align-items: center;
+      transition: transform 0.18s, filter 0.18s; position: relative;
+    }
+    .basket-wrap.hovered { transform: scale(1.06) translateY(-6px); }
+    .basket-wrap.hint-glow { filter: drop-shadow(0 0 22px #FACC15); transform: scale(1.05); }
+    .basket-mouth {
+      width: 90%; height: 38px; border-radius: 50%;
+      box-shadow: inset 0 8px 14px rgba(0,0,0,0.65);
+      position: relative; z-index: 2;
+    }
+    .basket-body {
+      width: 90%; margin-top: -18px; padding: 24px 14px 12px;
+      border-radius: 12px 12px 34px 34px;
+      box-shadow: 0 10px 20px rgba(45,38,64,0.18);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      position: relative; z-index: 3; border: 3px solid rgba(255,255,255,0.5);
+    }
+    .plaque {
+      background: #FFF; border-radius: 14px; padding: 7px 12px; width: 92%;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.14);
+    }
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.55);
+      display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      background: #FFFDF8; border: 4px solid #FFF; border-radius: 28px;
+      padding: 24px; width: 100%; max-width: 560px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+    }
+    .opt-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; margin-bottom: 16px; }
+    .opt-btn {
+      flex: 1; min-width: 90px; padding: 10px 12px; border-radius: 12px;
+      border: 2px solid #E2E8F0; background: #FFF; font-weight: 800; cursor: pointer;
+    }
+    .opt-btn.active { border-color: #F59E0B; background: #FEF3C7; color: #78350F; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="topbar">
+      <div class="hud-group">
+        <div class="hud-box">★ Puan: <span id="score-val">0</span></div>
+        <div class="hud-box">İlerleme: <span id="prog-val">0/12</span></div>
+      </div>
+      <h1 class="title-3d">Ses Sepetleri</h1>
+      <div class="hud-group">
+        <button class="btn-3d" id="btn-shuffle">Karıştır</button>
+        <button class="btn-3d" id="btn-new">Yeni Oyun</button>
+        <button class="btn-3d btn-amber" id="btn-settings">⚙ Ayarlar</button>
+      </div>
+    </div>
+    <div class="cards-stage"><div class="cards-grid" id="grid"></div></div>
+    <div class="baskets-row" id="baskets"></div>
+  </div>
+
+  <!-- Öğretmen Ayarları Modal -->
+  <div class="modal-backdrop" id="modal-settings">
+    <div class="modal-card">
+      <h2 style="font-family:var(--font-display);font-size:22px;margin-bottom:12px">Öğretmen Ayarları</h2>
+      <div>
+        <strong>Kart Sayısı:</strong>
+        <div class="opt-row" id="opt-counts">
+          <button class="opt-btn" data-count="12">12 (Kolay)</button>
+          <button class="opt-btn" data-count="18">18 (Orta)</button>
+          <button class="opt-btn" data-count="24">24 (Zor)</button>
+          <button class="opt-btn" data-count="28">28 (Tüm Harfler)</button>
+        </div>
+      </div>
+      <div>
+        <strong>Aktif Harekeler (En az 2):</strong>
+        <div class="opt-row" id="opt-harakat">
+          <button class="opt-btn" data-h="fetha">Fetha (بَ)</button>
+          <button class="opt-btn" data-h="kesra">Kesra (بِ)</button>
+          <button class="opt-btn" data-h="damme">Damme (بُ)</button>
+        </div>
+      </div>
+      <div>
+        <strong>Oyun Modu ve Ses:</strong>
+        <div class="opt-row">
+          <button class="opt-btn" id="btn-mode">Mod: Normal</button>
+          <button class="opt-btn" id="btn-sound">Ses: Açık</button>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
+        <button class="btn-3d btn-amber" id="btn-close-settings">Tamam</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Oyun Sonu Modal -->
+  <div class="modal-backdrop" id="modal-victory">
+    <div class="modal-card" style="text-align:center">
+      <div style="font-size:38px;color:#F59E0B;margin-bottom:6px">★ ★ ★</div>
+      <h2 style="font-family:var(--font-display);font-size:26px;margin-bottom:8px">Tebrikler! Ses Sepetlerini Tamamladın!</h2>
+      <p style="font-size:18px;font-weight:800;color:#D97706;margin-bottom:20px">Toplam Puan: <span id="final-score">0</span></p>
+      <div style="display:flex;gap:12px;justify-content:center">
+        <button class="btn-3d" id="btn-replay">Tekrar Oyna</button>
+        <button class="btn-3d btn-amber" id="btn-victory-new">Yeni Oyun</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const LETTERS = [{"id":"elif","index":1,"baseChar":"ا","nameTr":"Elif","forms":{"fetha":{"arabicText":"أَ","readingTr":"e"},"kesra":{"arabicText":"إِ","readingTr":"i"},"damme":{"arabicText":"أُ","readingTr":"u"}}},{"id":"ba","index":2,"baseChar":"ب","nameTr":"Bâ","forms":{"fetha":{"arabicText":"بَ","readingTr":"be"},"kesra":{"arabicText":"بِ","readingTr":"bi"},"damme":{"arabicText":"بُ","readingTr":"bu"}}},{"id":"ta","index":3,"baseChar":"ت","nameTr":"Tâ","forms":{"fetha":{"arabicText":"تَ","readingTr":"te"},"kesra":{"arabicText":"تِ","readingTr":"ti"},"damme":{"arabicText":"تُ","readingTr":"tu"}}},{"id":"tha","index":4,"baseChar":"ث","nameTr":"Sâ","forms":{"fetha":{"arabicText":"ثَ","readingTr":"se"},"kesra":{"arabicText":"ثِ","readingTr":"si"},"damme":{"arabicText":"ثُ","readingTr":"su"}}},{"id":"cim","index":5,"baseChar":"ج","nameTr":"Cîm","forms":{"fetha":{"arabicText":"جَ","readingTr":"ce"},"kesra":{"arabicText":"جِ","readingTr":"ci"},"damme":{"arabicText":"جُ","readingTr":"cu"}}},{"id":"ha","index":6,"baseChar":"ح","nameTr":"Hâ","forms":{"fetha":{"arabicText":"حَ","readingTr":"ha"},"kesra":{"arabicText":"حِ","readingTr":"hı"},"damme":{"arabicText":"حُ","readingTr":"hu"}}},{"id":"kha","index":7,"baseChar":"خ","nameTr":"Hı","forms":{"fetha":{"arabicText":"خَ","readingTr":"ha"},"kesra":{"arabicText":"خِ","readingTr":"hı"},"damme":{"arabicText":"خُ","readingTr":"hu"}}},{"id":"dal","index":8,"baseChar":"د","nameTr":"Dâl","forms":{"fetha":{"arabicText":"دَ","readingTr":"de"},"kesra":{"arabicText":"دِ","readingTr":"di"},"damme":{"arabicText":"دُ","readingTr":"du"}}},{"id":"zal","index":9,"baseChar":"ذ","nameTr":"Zâl","forms":{"fetha":{"arabicText":"ذَ","readingTr":"ze"},"kesra":{"arabicText":"ذِ","readingTr":"zi"},"damme":{"arabicText":"ذُ","readingTr":"zu"}}},{"id":"ra","index":10,"baseChar":"ر","nameTr":"Râ","forms":{"fetha":{"arabicText":"رَ","readingTr":"ra"},"kesra":{"arabicText":"رِ","readingTr":"ri"},"damme":{"arabicText":"رُ","readingTr":"ru"}}},{"id":"zay","index":11,"baseChar":"ز","nameTr":"Zây","forms":{"fetha":{"arabicText":"زَ","readingTr":"ze"},"kesra":{"arabicText":"زِ","readingTr":"zi"},"damme":{"arabicText":"زُ","readingTr":"zu"}}},{"id":"sin","index":12,"baseChar":"س","nameTr":"Sîn","forms":{"fetha":{"arabicText":"سَ","readingTr":"se"},"kesra":{"arabicText":"سِ","readingTr":"si"},"damme":{"arabicText":"سُ","readingTr":"su"}}},{"id":"shin","index":13,"baseChar":"ش","nameTr":"Şîn","forms":{"fetha":{"arabicText":"شَ","readingTr":"şe"},"kesra":{"arabicText":"شِ","readingTr":"şi"},"damme":{"arabicText":"شُ","readingTr":"şu"}}},{"id":"sad","index":14,"baseChar":"ص","nameTr":"Sâd","forms":{"fetha":{"arabicText":"صَ","readingTr":"sa"},"kesra":{"arabicText":"صِ","readingTr":"sı"},"damme":{"arabicText":"صُ","readingTr":"su"}}},{"id":"dad","index":15,"baseChar":"ض","nameTr":"Dâd","forms":{"fetha":{"arabicText":"ضَ","readingTr":"da"},"kesra":{"arabicText":"ضِ","readingTr":"dı"},"damme":{"arabicText":"ضُ","readingTr":"du"}}},{"id":"ta_emph","index":16,"baseChar":"ط","nameTr":"Tı","forms":{"fetha":{"arabicText":"طَ","readingTr":"ta"},"kesra":{"arabicText":"طِ","readingTr":"tı"},"damme":{"arabicText":"طُ","readingTr":"tu"}}},{"id":"za_emph","index":17,"baseChar":"ظ","nameTr":"Zı","forms":{"fetha":{"arabicText":"ظَ","readingTr":"za"},"kesra":{"arabicText":"ظِ","readingTr":"zı"},"damme":{"arabicText":"ظُ","readingTr":"zu"}}},{"id":"ayn","index":18,"baseChar":"ع","nameTr":"Ayn","forms":{"fetha":{"arabicText":"عَ","readingTr":"a"},"kesra":{"arabicText":"عِ","readingTr":"ı"},"damme":{"arabicText":"عُ","readingTr":"u"}}},{"id":"ghayn","index":19,"baseChar":"غ","nameTr":"Gayn","forms":{"fetha":{"arabicText":"غَ","readingTr":"ga"},"kesra":{"arabicText":"غِ","readingTr":"gı"},"damme":{"arabicText":"غُ","readingTr":"gu"}}},{"id":"fa","index":20,"baseChar":"ف","nameTr":"Fâ","forms":{"fetha":{"arabicText":"فَ","readingTr":"fe"},"kesra":{"arabicText":"فِ","readingTr":"fi"},"damme":{"arabicText":"فُ","readingTr":"fu"}}},{"id":"qaf","index":21,"baseChar":"ق","nameTr":"Kâf","forms":{"fetha":{"arabicText":"قَ","readingTr":"ka"},"kesra":{"arabicText":"قِ","readingTr":"kı"},"damme":{"arabicText":"قُ","readingTr":"ku"}}},{"id":"kaf","index":22,"baseChar":"ك","nameTr":"Kef","forms":{"fetha":{"arabicText":"كَ","readingTr":"ke"},"kesra":{"arabicText":"كِ","readingTr":"ki"},"damme":{"arabicText":"كُ","readingTr":"ku"}}},{"id":"lam","index":23,"baseChar":"ل","nameTr":"Lâm","forms":{"fetha":{"arabicText":"لَ","readingTr":"le"},"kesra":{"arabicText":"لِ","readingTr":"li"},"damme":{"arabicText":"لُ","readingTr":"lu"}}},{"id":"mim","index":24,"baseChar":"م","nameTr":"Mîm","forms":{"fetha":{"arabicText":"مَ","readingTr":"me"},"kesra":{"arabicText":"مِ","readingTr":"mi"},"damme":{"arabicText":"مُ","readingTr":"mu"}}},{"id":"nun","index":25,"baseChar":"ن","nameTr":"Nûn","forms":{"fetha":{"arabicText":"نَ","readingTr":"ne"},"kesra":{"arabicText":"نِ","readingTr":"ni"},"damme":{"arabicText":"نُ","readingTr":"nu"}}},{"id":"he","index":26,"baseChar":"ه","nameTr":"Hê","forms":{"fetha":{"arabicText":"هَ","readingTr":"he"},"kesra":{"arabicText":"هِ","readingTr":"hi"},"damme":{"arabicText":"هُ","readingTr":"hu"}}},{"id":"vav","index":27,"baseChar":"و","nameTr":"Vâv","forms":{"fetha":{"arabicText":"وَ","readingTr":"ve"},"kesra":{"arabicText":"وِ","readingTr":"vi"},"damme":{"arabicText":"وُ","readingTr":"vu"}}},{"id":"ya","index":28,"baseChar":"ي","nameTr":"Yâ","forms":{"fetha":{"arabicText":"يَ","readingTr":"ye"},"kesra":{"arabicText":"يِ","readingTr":"yi"},"damme":{"arabicText":"يُ","readingTr":"yu"}}}];
+    const COLORS = ['blue','green','pink','purple','yellow','orange'];
+    const ALL_BASKETS = {
+      fetha: { id: 'fetha', title: 'Fethalı Harfler', ex: 'بَ', bg: 'linear-gradient(180deg,#52D687,#2BA35B)', mouth: '#15542D', border: '#42C878', color: '#145C32' },
+      kesra: { id: 'kesra', title: 'Kesralı Harfler', ex: 'بِ', bg: 'linear-gradient(180deg,#9D73F2,#6D40C7)', mouth: '#391978', border: '#8F62E8', color: '#471E8C' },
+      damme: { id: 'damme', title: 'Dammeli Harfler', ex: 'بُ', bg: 'linear-gradient(180deg,#FF8166,#E04F33)', mouth: '#7D200D', border: '#FF7052', color: '#8A2713' }
+    };
+    let settings = JSON.parse(localStorage.getItem('ses_sepetleri_cfg') || 'null') || {
+      cardCount: 12, activeHarakat: ['fetha','kesra','damme'], sound: true, mode: 'normal'
+    };
+    let score = 0, placed = 0, deck = [], audioCtx = null;
+
+    function playTone(freqs, type='triangle', dur=0.22){
+      if(!settings.sound) return;
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return;
+      if(!audioCtx) audioCtx = new Ctx();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      freqs.forEach((f,i) => {
+        const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+        osc.type = type; const st = audioCtx.currentTime + i*0.06;
+        osc.frequency.setValueAtTime(f, st);
+        g.gain.setValueAtTime(0.09, st);
+        g.gain.exponentialRampToValueAtTime(0.001, st + dur);
+        osc.connect(g); g.connect(audioCtx.destination);
+        osc.start(st); osc.stop(st + dur + 0.02);
+      });
+    }
+
+    function saveSettings(){ localStorage.setItem('ses_sepetleri_cfg', JSON.stringify(settings)); }
+    function shuffle(a){ const c=[...a]; for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]];} return c; }
+
+    function buildBaskets(){
+      const row = document.getElementById('baskets');
+      row.innerHTML = settings.activeHarakat.map(k => {
+        const b = ALL_BASKETS[k];
+        return `
+        <div class="basket-wrap" id="basket-${b.id}" data-basket="${b.id}">
+          <div class="basket-mouth" style="background:${b.mouth};border:4px solid ${b.border}"></div>
+          <div class="basket-body" style="background:${b.bg}">
+            <div class="plaque">
+              <span style="font-weight:800;color:${b.color}">${b.title}</span>
+              <span class="arabic-glyph" style="font-size:28px;color:${b.color}">${b.ex}</span>
+            </div>
+            <div style="font-size:12px;font-weight:800;color:#FFF">Sepetteki Harf: <span id="cnt-${b.id}">0</span></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function startRound(){
+      score = 0; placed = 0;
+      document.getElementById('modal-victory').classList.remove('open');
+      buildBaskets();
+      const hList = settings.activeHarakat;
+      const baseQ = Math.floor(settings.cardCount / hList.length);
+      const rem = settings.cardCount % hList.length;
+      const quotas = {};
+      shuffle(hList).forEach((h,i) => quotas[h] = baseQ + (i < rem ? 1 : 0));
+      let raw = [];
+      if(settings.cardCount === 28){
+        const assigns = [];
+        hList.forEach(h => { for(let i=0;i<quotas[h];i++) assigns.push(h); });
+        const shAssigns = shuffle(assigns);
+        raw = shuffle(LETTERS).map((l,i) => ({
+          uid: l.id+'_'+shAssigns[i], text: l.forms[shAssigns[i]].arabicText, haraka: shAssigns[i]
+        }));
+      } else {
+        hList.forEach(h => {
+          const sub = shuffle(LETTERS).slice(0, quotas[h]).map(l => ({
+            uid: l.id+'_'+h, text: l.forms[h].arabicText, haraka: h
+          }));
+          raw.push(...sub);
+        });
+      }
+      deck = shuffle(raw).map((c,i) => ({...c, color: COLORS[i%COLORS.length], done: false}));
+      render();
+    }
+
+    function render(){
+      document.getElementById('score-val').textContent = score;
+      document.getElementById('prog-val').textContent = placed + '/' + deck.length;
+      const grid = document.getElementById('grid');
+      const cols = settings.cardCount === 12 ? 6 : settings.cardCount === 18 ? 6 : settings.cardCount === 24 ? 8 : 7;
+      const hPx = settings.cardCount <= 18 ? 84 : 68;
+      const fPx = settings.cardCount <= 18 ? 40 : 32;
+      grid.style.gridTemplateColumns = `repeat(${cols}, minmax(74px, 130px))`;
+      grid.innerHTML = deck.map((c,idx) => `
+        <div class="letter-card color-${c.color}" data-idx="${idx}" style="height:${hPx}px;${c.done?'visibility:hidden;pointer-events:none':''}">
+          <span class="arabic-glyph" style="font-size:${fPx}px">${c.text}</span>
+        </div>`).join('');
+      attachDrag();
+    }
+
+    function attachDrag(){
+      document.querySelectorAll('.letter-card').forEach(el => {
+        let sx=0, sy=0, dragging=false;
+        el.onpointerdown = (e) => {
+          dragging=true; sx=e.clientX; sy=e.clientY;
+          el.setPointerCapture(e.pointerId);
+          el.style.zIndex = 100; el.style.transition = 'none';
+          playTone([400], 'sine', 0.06);
+        };
+        el.onpointermove = (e) => {
+          if(!dragging) return;
+          const dx = e.clientX - sx, dy = e.clientY - sy;
+          el.style.transform = `translate3d(${dx}px,${dy}px,0) scale(1.14)`;
+        };
+        el.onpointerup = (e) => {
+          if(!dragging) return; dragging=false;
+          el.style.zIndex = ''; el.style.transition = 'transform 0.24s';
+          const idx = +el.dataset.idx; const card = deck[idx];
+          let hit = null;
+          document.querySelectorAll('.basket-wrap').forEach(b => {
+            const r = b.getBoundingClientRect();
+            if(e.clientX >= r.left - 12 && e.clientX <= r.right + 12 && e.clientY >= r.top - 24 && e.clientY <= r.bottom + 12){
+              hit = b.dataset.basket;
+            }
+          });
+          if(hit === card.haraka){
+            card.done = true; score += 10; placed++;
+            playTone([523.25, 659.25, 783.99, 1046.5]);
+            const cntEl = document.getElementById('cnt-'+hit);
+            cntEl.textContent = (+cntEl.textContent + 1);
+            render();
+            if(placed === deck.length){
+              document.getElementById('final-score').textContent = score;
+              document.getElementById('modal-victory').classList.add('open');
+              playTone([523.25, 659.25, 783.99, 1046.5, 1318.5], 'triangle', 0.35);
+            }
+          } else {
+            el.style.transform = 'translate3d(0,0,0)';
+            if(hit){
+              el.classList.add('wobble');
+              playTone([260, 210], 'sine', 0.18);
+              if(settings.mode === 'learning'){
+                const rightB = document.getElementById('basket-'+card.haraka);
+                if(rightB){
+                  rightB.classList.add('hint-glow');
+                  setTimeout(() => rightB.classList.remove('hint-glow'), 1500);
+                }
+              }
+              setTimeout(() => el.classList.remove('wobble'), 520);
+            }
+          }
+        };
+      });
+    }
+
+    function syncSettingsUI(){
+      document.querySelectorAll('#opt-counts .opt-btn').forEach(b => {
+        b.classList.toggle('active', +b.dataset.count === settings.cardCount);
+      });
+      document.querySelectorAll('#opt-harakat .opt-btn').forEach(b => {
+        b.classList.toggle('active', settings.activeHarakat.includes(b.dataset.h));
+      });
+      document.getElementById('btn-mode').textContent = 'Mod: ' + (settings.mode === 'learning' ? 'Öğrenme' : 'Normal');
+      document.getElementById('btn-sound').textContent = 'Ses: ' + (settings.sound ? 'Açık' : 'Kapalı');
+    }
+
+    document.querySelectorAll('#opt-counts .opt-btn').forEach(b => {
+      b.onclick = () => { settings.cardCount = +b.dataset.count; saveSettings(); syncSettingsUI(); startRound(); };
+    });
+    document.querySelectorAll('#opt-harakat .opt-btn').forEach(b => {
+      b.onclick = () => {
+        const h = b.dataset.h;
+        if(settings.activeHarakat.includes(h)){
+          if(settings.activeHarakat.length <= 2) return;
+          settings.activeHarakat = settings.activeHarakat.filter(x => x !== h);
+        } else {
+          settings.activeHarakat.push(h);
+        }
+        saveSettings(); syncSettingsUI(); startRound();
+      };
+    });
+    document.getElementById('btn-mode').onclick = () => {
+      settings.mode = settings.mode === 'normal' ? 'learning' : 'normal';
+      saveSettings(); syncSettingsUI();
+    };
+    document.getElementById('btn-sound').onclick = () => {
+      settings.sound = !settings.sound;
+      saveSettings(); syncSettingsUI();
+    };
+    document.getElementById('btn-settings').onclick = () => {
+      syncSettingsUI(); document.getElementById('modal-settings').classList.add('open');
+    };
+    document.getElementById('btn-close-settings').onclick = () => {
+      document.getElementById('modal-settings').classList.remove('open');
+    };
+    document.getElementById('btn-shuffle').onclick = () => { deck = shuffle(deck); render(); };
+    document.getElementById('btn-new').onclick = startRound;
+    document.getElementById('btn-victory-new').onclick = startRound;
+    document.getElementById('btn-replay').onclick = () => {
+      score = 0; placed = 0;
+      deck = shuffle(deck.map(c => ({...c, done: false})));
+      document.getElementById('modal-victory').classList.remove('open');
+      buildBaskets(); render();
+    };
+    startRound();
+  </script>
+</body>
+</html>
